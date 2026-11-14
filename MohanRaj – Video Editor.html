@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MohanRaj – Video Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#d6dad4;--panel:#c3c9c1;--ink:#1a2320;--mute:#46534e;--line:#8a958f;--accent:#d33a26;
+  --mon:#101513;--monink:#e6ebe4;--lab:7.5rem;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141a17;--panel:#1f2824;--ink:#e3e8e1;--mute:#9aa7a0;--line:#46534d;--accent:#ff6a52;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141a17;--panel:#1f2824;--ink:#e3e8e1;--mute:#9aa7a0;--line:#46534d;--accent:#ff6a52;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Archivo",system-ui,sans-serif;font-size:1.0625rem;line-height:1.55}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.wrap{max-width:68rem;margin:0 auto;padding:0 1.25rem}
+header{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1.25rem 0;flex-wrap:wrap}
+header strong{font-weight:700;font-stretch:112%}
+nav{display:flex;gap:1.5rem}
+nav a{text-decoration:none;color:var(--mute)}
+nav a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+.hero{padding:3.5rem 0 3rem}
+.hero h1{margin:0;font-size:clamp(2.4rem,7.2vw,5.6rem);line-height:.98;font-weight:850;font-stretch:125%;letter-spacing:-.02em;max-width:16ch}
+.hero p{margin:1.5rem 0 0;max-width:36rem;color:var(--mute);font-size:1.15rem}
+h2{font-size:1.5rem;font-weight:800;font-stretch:112%;margin:0 0 1.25rem;color:var(--accent)}
+section{padding:2.5rem 0}
+.stage{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:1.5rem;align-items:stretch}
+.monitor{aspect-ratio:16/9;background:var(--mon);color:var(--monink);position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:1.25rem;overflow:hidden}
+.monitor::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 70% 30%,rgba(255,255,255,.09),transparent 55%)}
+
+
+.monitor .tc{position:absolute;top:1rem;right:1.25rem;font-family:"IBM Plex Mono",monospace;font-size:.95rem;color:var(--accent)}
+.monitor .rec{position:absolute;top:1rem;left:1.25rem;font-size:.85rem;color:#9aa7a0}
+.monitor h3{position:relative;margin:0;font-size:clamp(1.3rem,3.4vw,2.2rem);font-weight:800;font-stretch:115%;line-height:1.1}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:.6rem 1.25rem;align-content:start}
+dt{color:var(--mute)}
+dd{margin:0;font-weight:600}
+.tl{position:relative;margin-top:2rem;overflow-x:auto;padding-bottom:.5rem}
+.tl-in{position:relative;min-width:42rem}
+.row{display:grid;grid-template-columns:var(--lab) 1fr;border-top:1px solid var(--line)}
+.row:last-child{border-bottom:1px solid var(--line)}
+.row>span{padding-top:1rem;color:var(--mute);font-size:.95rem}
+.row>span a{color:var(--ink);font-weight:700}
+.lane{position:relative;height:4rem;overflow:hidden}.lane::before{content:"";position:absolute;top:0;bottom:0;left:-5rem;right:0;background:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 5rem);animation:gridmove 3s linear infinite}@keyframes gridmove{to{transform:translateX(5rem)}}@keyframes sweep{from{left:var(--lab)}to{left:100%}}
+.clip{position:absolute;top:.5rem;bottom:.5rem;border:0;padding:0 .75rem;text-align:left;font:inherit;font-size:.95rem;font-weight:600;background:var(--ink);color:var(--bg);cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.clip:hover,.clip:focus-visible{background:var(--accent);color:#fff}
+
+.head{position:absolute;top:0;bottom:0;width:2px;background:var(--accent);left:calc(var(--lab) + (100% - var(--lab)) * var(--p) / 100);pointer-events:none;animation:sweep 14s linear infinite}
+.head::before{content:"";position:absolute;top:-1px;left:-6px;border:7px solid transparent;border-top-color:var(--accent);border-bottom:0}
+.about{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2rem}
+.about p{margin:0 0 1rem;max-width:34rem}
+.about ul{margin:0;padding:0;list-style:none}
+.about li{padding:.6rem 0;border-top:1px solid var(--line)}
+.about li span{color:var(--mute)}
+.contact a.mail{display:inline-flex;align-items:center;gap:.6rem;font-size:clamp(1.5rem,4.5vw,3rem);font-weight:800;font-stretch:118%;text-decoration:underline;text-underline-offset:.2em;text-decoration-thickness:3px}
+.contact a.mail:hover{color:var(--accent)}
+#yt{padding:2.5rem 0}#yt ul{list-style:none;margin:0;padding:0}#yt li{padding:1.25rem 0;border-top:1px solid var(--line)}#yt li:last-child{border-bottom:1px solid var(--line)}#yt h3{margin:0 0 .25rem;font-size:1.25rem;font-weight:800;font-stretch:112%}#yt p{margin:0 0 .5rem;color:var(--mute)}#yt .back{display:inline-block;margin-bottom:1.5rem}
+#reels{padding:2.5rem 0}#reels ul{list-style:none;margin:0;padding:0}#reels li{padding:1.25rem 0;border-top:1px solid var(--line)}#reels li:last-child{border-bottom:1px solid var(--line)}#reels h3{margin:0 0 .25rem;font-size:1.25rem;font-weight:800;font-stretch:112%}#reels p{margin:0 0 .5rem;color:var(--mute)}#reels .back{display:inline-block;margin-bottom:1.5rem}
+.tabs{display:flex;gap:.5rem;margin:0 0 1.5rem;flex-wrap:wrap}.tabs button{font:inherit;font-weight:600;padding:.6rem 1.1rem;border:2px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+#brandfilm{padding:2.5rem 0}#brandfilm ul{list-style:none;margin:0;padding:0}#brandfilm li{padding:1.25rem 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}#brandfilm h3{margin:0 0 .25rem;font-size:1.25rem;font-weight:800;font-stretch:112%}#brandfilm p{margin:0 0 .5rem;color:var(--mute)}#brandfilm .back{display:inline-block;margin-bottom:1.5rem}
+#reels .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(13rem,1fr));gap:1.25rem}#reels .vgrid li,#reels .vgrid li:last-child{padding:0;border:0}
+.vcard{position:relative;display:block;width:100%;aspect-ratio:9/16;border:0;padding:0;background:#000;cursor:pointer;overflow:hidden}.vcard video{width:100%;height:100%;object-fit:cover;display:block}.vcard .vt{position:absolute;left:0;right:0;bottom:0;padding:2.5rem .9rem .8rem;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-weight:700;text-align:left}
+#vmodal{border:0;padding:0;background:#000;width:min(92vw,26rem);max-height:92vh;overflow:hidden}#vmodal::backdrop{background:rgba(0,0,0,.82)}#vmodal video{display:block;width:100%;max-height:92vh;background:#000}#vmodal .close{position:absolute;top:.6rem;right:.6rem;font:inherit;font-weight:600;padding:.4rem .8rem;border:0;background:rgba(0,0,0,.65);color:#fff;cursor:pointer}
+.fcard{position:relative;display:flex;flex-direction:column;gap:.25rem;width:100%;max-width:18rem;margin-top:.9rem;text-align:left;font:inherit;padding:1.25rem;border:2px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer}.fcard::before{content:"";position:absolute;top:calc(-.9rem - 2px);left:-2px;width:5rem;height:.9rem;border:2px solid var(--ink);border-bottom:0;background:var(--panel)}.fcard .ft{font-weight:800;font-size:1.25rem;font-stretch:112%}.fcard .fc{color:var(--mute)}
+.fback{font:inherit;font-weight:600;background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;cursor:pointer}
+#brandfilm .vgrid{display:flex;gap:1.25rem;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:.75rem;scrollbar-width:thin}#brandfilm .vgrid li{flex:0 0 13rem;scroll-snap-align:start}#brandfilm .vgrid.wide li{flex-basis:22rem}#brandfilm .cap{margin:.6rem 0 0;color:var(--ink);font-weight:700}#eventrecap{padding:2.5rem 0}#eventrecap ul{list-style:none;margin:0;padding:0}#eventrecap .back{display:inline-block;margin-bottom:1.5rem}#eventrecap .vgrid{display:flex;gap:1.25rem;overflow-x:auto}#eventrecap .vgrid li{flex:0 0 22rem;padding:0;border:0}.vcard.wide{aspect-ratio:16/9}.cnav{display:flex;gap:.5rem;margin-top:.5rem}.cnav button{font:inherit;font-weight:600;padding:.5rem 1rem;border:2px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;border-radius:.6rem}#brandfilm .vgrid li{padding:0;border:0}#brandfilm .topic{margin:1.5rem 0 1rem}
+
+.clip{border-radius:.6rem}.vcard{border-radius:1rem}#vmodal{border-radius:1rem}
+#yt .vgrid{display:flex;gap:1.25rem;overflow-x:auto}#yt .vgrid li,#yt .vgrid li:last-child{flex:0 0 22rem;padding:0;border:0}
+.about li span.ai{display:inline-flex;flex-wrap:wrap;gap:.5rem;vertical-align:middle;margin-left:.5rem}.ic{width:2.5rem;height:2.5rem;border-radius:.6rem;background:#101513;display:inline-flex;align-items:center;justify-content:center}.ic img{width:1.6rem;height:1.6rem;object-fit:contain;display:block}
+#reels .topic{margin:0 0 1rem}#reels .crow{display:flex;gap:1.25rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 0 .75rem;margin:0;list-style:none;scrollbar-width:thin}#reels .crow li,#reels .crow li:last-child{flex:0 0 13rem;scroll-snap-align:start;padding:0;border:0}
+.hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:2rem;align-items:center}.hero-img .fig{position:relative;width:100%;max-width:26rem;margin-left:auto;border-radius:1.25rem;overflow:hidden;animation:floaty 5s ease-in-out infinite}.hero-img img{display:block;width:100%;height:auto}.hero-img .fig:hover{animation:work .35s ease-in-out infinite}@keyframes work{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}.work{position:absolute;left:8%;right:8%;bottom:7%;padding:.7rem;background:rgba(16,21,19,.93);border:1px solid rgba(255,255,255,.2);border-radius:.9rem;opacity:0;transform:translateY(12px) scale(.96);transition:opacity .25s,transform .25s;pointer-events:none}.hero-img .fig:hover .work{opacity:1;transform:none}.wbar{display:flex;gap:.3rem;margin-bottom:.55rem}.wbar span{width:.5rem;height:.5rem;border-radius:50%;background:rgba(255,255,255,.35)}.wtl{position:relative;height:4.2rem}.wtl i{position:absolute;height:1.2rem;border-radius:.3rem;background:#e6ebe4;transform:scaleX(0);transform-origin:left}.wtl i.a{background:#ff6a52}.hero-img .fig:hover .wtl i{animation:clipin 3.6s ease-out infinite;animation-delay:var(--d)}.wph{position:absolute;top:-.2rem;bottom:-.2rem;left:0;width:2px;background:#ff6a52;opacity:0}.hero-img .fig:hover .wph{animation:phmove 1.2s linear infinite}.wfoot{display:flex;align-items:center;gap:.6rem;margin-top:.6rem}.wprog{flex:1;height:.4rem;background:rgba(255,255,255,.18);border-radius:99px;overflow:hidden}.wprog em{display:block;height:100%;width:0;background:#ff6a52}.hero-img .fig:hover .wprog em{animation:fillbar 3.6s linear infinite}.wout{width:3.4rem;aspect-ratio:16/9;background:#000;border:1px solid rgba(255,255,255,.35);border-radius:.3rem;display:flex;align-items:center;justify-content:center;opacity:0}.wout svg{width:1rem;height:1rem}.hero-img .fig:hover .wout{animation:outpop 3.6s ease infinite}@keyframes clipin{0%{transform:scaleX(0);opacity:1}14%{transform:scaleX(1)}55%{transform:scaleX(1);opacity:1}62%,100%{transform:scaleX(1);opacity:0}}@keyframes phmove{0%{left:0;opacity:1}100%{left:100%;opacity:1}}@keyframes fillbar{0%,45%{width:0}85%,100%{width:100%}}@keyframes outpop{0%,80%{opacity:0;transform:scale(.7)}88%,97%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+#documentary{padding:2.5rem 0}#documentary ul{list-style:none;margin:0;padding:0}#documentary .back{display:inline-block;margin-bottom:1.5rem}#documentary .vgrid{display:flex;gap:1.25rem;overflow-x:auto}#documentary .vgrid li{flex:0 0 22rem;padding:0;border:0}
+.contact a.tel{display:inline-flex;align-items:center;gap:.6rem;font-size:clamp(1.25rem,3.5vw,2rem);font-weight:700;font-stretch:112%;text-decoration:none}.contact a.tel svg{width:1.1em;height:1.1em;flex:none}.contact a.tel:hover{color:var(--accent)}
+#shortfilms{padding:2.5rem 0}#shortfilms ul{list-style:none;margin:0;padding:0}#shortfilms .back{display:inline-block;margin-bottom:1.5rem}#shortfilms .vgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.5rem 1.25rem}#shortfilms .vgrid li{padding:0;border:0;min-width:0}@media (max-width:600px){#shortfilms .vgrid{grid-template-columns:1fr}}#shortfilms .cap{margin:.6rem 0 0;font-weight:700}
+.contact a.mail svg{width:1em;height:1em;flex:none}
+#yt .topic{margin:2rem 0 1rem}#yt h3.topic:first-of-type{margin-top:0}
+.do{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem}.card{position:relative;padding:1.25rem 1.25rem 1.4rem;border:1px solid var(--line);border-radius:1rem;background:var(--panel);transition:transform .3s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .3s}.card.hot,.card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 14px 30px rgba(0,0,0,.25)}.card svg{width:3.2rem;height:3.2rem;display:block;margin-bottom:.8rem;color:var(--accent);overflow:visible}.card svg *{transform-box:fill-box;transform-origin:center;animation-play-state:paused}.card.hot svg *,.card:hover svg *{animation-play-state:running}.card h3{margin:0 0 .3rem;font-size:1.15rem;font-weight:800;font-stretch:112%}.card p{margin:0;color:var(--mute);font-size:.98rem;line-height:1.45}.a-slide{animation:aslide 1.1s ease-in-out infinite alternate}.a-slide.d2{animation-delay:-.4s}.a-slide.d3{animation-delay:-.8s}@keyframes aslide{from{transform:translateX(-5px)}to{transform:translateX(7px)}}.a-pulse{animation:apulse 1s ease-in-out infinite alternate}@keyframes apulse{from{transform:scale(.8)}to{transform:scale(1.25)}}.a-bar{animation:abar .6s ease-in-out infinite alternate}.a-bar.d2{animation-duration:.8s;animation-delay:-.2s}.a-bar.d3{animation-duration:.5s;animation-delay:-.35s}.a-bar.d4{animation-duration:.9s;animation-delay:-.5s}@keyframes abar{from{transform:scaleY(.25)}to{transform:scaleY(1)}}.a-blink{animation:ablink .8s steps(2) infinite}@keyframes ablink{50%{opacity:.1}}@media (max-width:900px){.do{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:560px){.do{grid-template-columns:1fr}}
+footer{padding:2rem 0 2.5rem;color:var(--mute);font-size:.95rem}
+@media (max-width:760px){.stage,.about,.hero{grid-template-columns:1fr}.hero-img .fig{margin:0 auto}.hero{padding-top:2rem}}
+@media (prefers-reduced-motion:reduce){.head,.lane::before,.hero-img .fig,.hero-img .fig:hover,.hero-img .scan{animation:none}.work{display:none}.card svg *{animation:none}.rscreen.cut video,.lower.in{animation:none}.np.live .wave i,.np.live .rec i,.np-t.chg{animation:none}.tile,.tile.ready.pop,.tile.ctr.ready.pop{animation:none}.head{transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <strong>MohanRaj</strong>
+    <nav aria-label="Main"><a href="#work">Work</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
+  </header>
+
+  <main id="main">
+    <div class="hero">
+      <div class="hero-text">
+        <h1>I cut footage into stories people finish watching.</h1>
+        <p>Video editor for brands, filmmakers and short-form reels. Open for freelance projects.</p>
+      </div>
+      <div class="hero-img"><div class="fig"><img src="/_blob/fbaaa35d68d4e7bc8b9ef87fe1b36ba8" alt="MohanRaj, video editor" width="876" height="900"><div class="work" aria-hidden="true"><div class="wbar"><span></span><span></span><span></span></div><div class="wtl"><i style="top:0;left:3%;width:28%;--d:0s"></i><i style="top:0;left:36%;width:20%;--d:.25s"></i><i class="a" style="top:0;left:60%;width:32%;--d:.5s"></i><i class="a" style="top:1.5rem;left:10%;width:34%;--d:.15s"></i><i style="top:1.5rem;left:50%;width:38%;--d:.4s"></i><i style="top:3rem;left:2%;width:18%;--d:.3s"></i><i style="top:3rem;left:26%;width:30%;--d:.55s"></i><i class="a" style="top:3rem;left:62%;width:30%;--d:.1s"></i><b class="wph"></b></div><div class="wfoot"><div class="wprog"><em></em></div><div class="wout"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div></div></div></div></div>
+    </div>
+
+    <section id="work" aria-labelledby="do-h">
+      <h2 id="do-h">What I do</h2>
+      <div class="do" id="do">
+        <article class="card"><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="currentColor"><rect class="a-slide" x="6" y="10" width="20" height="8" rx="2"/><rect class="a-slide d2" x="14" y="20" width="26" height="8" rx="2"/><rect class="a-slide d3" x="6" y="30" width="16" height="8" rx="2"/></g></svg><h3>Video editing</h3><p>Cutting raw footage into clear, engaging stories.</p></article>
+        <article class="card"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="10" width="36" height="28" rx="5" fill="none" stroke="currentColor" stroke-width="3"/><path class="a-pulse" d="M20 17v14l12-7z" fill="currentColor"/></svg><h3>Storytelling</h3><p>Structure, pacing and rhythm that hold attention.</p></article>
+        <article class="card"><svg viewBox="0 0 48 48" aria-hidden="true"><g fill="currentColor"><rect class="a-bar" x="5" y="16" width="4" height="16" rx="2"/><rect class="a-bar d2" x="12" y="10" width="4" height="28" rx="2"/><rect class="a-bar d3" x="19" y="14" width="4" height="20" rx="2"/><rect class="a-bar d4" x="26" y="8" width="4" height="32" rx="2"/><rect class="a-bar d2" x="33" y="14" width="4" height="20" rx="2"/><rect class="a-bar d3" x="40" y="18" width="4" height="12" rx="2"/></g></svg><h3>Sound design</h3><p>Clean audio, music and effects that lift the edit.</p></article>
+        <article class="card"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="14" width="26" height="20" rx="4" fill="none" stroke="currentColor" stroke-width="3"/><path d="M31 21l11-6v18l-11-6z" fill="currentColor"/><circle class="a-blink" cx="12" cy="21" r="2.5" fill="currentColor"/></svg><h3>Brand and corporate films</h3><p>Promotional videos, healthcare explainers and social content.</p></article>
+      </div>
+      <div class="tl" role="group" aria-label="Project timeline">
+        <div class="tl-in" id="tl"><div class="head" id="head" style="--p:0"></div></div>
+      </div>
+    </section>
+
+    <section id="about" aria-labelledby="about-h">
+      <h2 id="about-h">About</h2>
+      <div class="about">
+        <div>
+          <p>I’m a passionate Video Editor and Post-Production Specialist with a creative eye for storytelling. I specialize in video editing, motion graphics, and digital content creation, transforming ideas into engaging visual experiences.</p>
+          
+          
+          
+          
+        </div>
+        <ul>
+          <li>Softwares <span class="ai">
+            <span class="ic" role="img" aria-label="Premiere Pro"><img src="/_blob/d3ea3bf2f0e884788440054204b121d6" alt=""></span>
+            <span class="ic" role="img" aria-label="DaVinci Resolve"><img src="/_blob/377fc8d6ab397aaac2862d265f6b4890" alt=""></span>
+            <span class="ic" role="img" aria-label="Final Cut Pro"><img src="/_blob/c034b572b16914ed9f211215abb64bb4" alt=""></span>
+            <span class="ic" role="img" aria-label="After Effects"><img src="/_blob/16da0dd18a2b08fbac07b08fc3cb79dd" alt=""></span>
+          </span></li>
+          <li>AI tools <span class="ai">
+            <span class="ic" role="img" aria-label="Gemini"><img src="/_blob/1419e27254ee90e672eeb8f3e83d21ab" alt=""></span>
+            <span class="ic" role="img" aria-label="Google Flow"><img src="/_blob/814fc6668998ce192f7558f380d69708" alt=""></span>
+            <span class="ic" role="img" aria-label="HeyGen"><img src="/_blob/409fda2130412526f72abb8ace75f22c" alt=""></span>
+            <span class="ic" role="img" aria-label="Magnific"><img src="/_blob/fca3c9791312dcb0df2b3770e8520354" alt=""></span>
+            <span class="ic" role="img" aria-label="Adobe Firefly"><img src="/_blob/3dce99bf529ba49390a1fd4d83042e07" alt=""></span>
+          </span></li>
+          
+        </ul>
+      </div>
+    </section>
+
+    <section id="contact" class="contact" aria-labelledby="contact-h">
+      <h2 id="contact-h">Contact</h2>
+      <a class="mail" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=mohanraj.ofl@gmail.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>mohanraj.ofl@gmail.com</a>
+      <p style="margin:1rem 0 0"><a class="tel" href="tel:+919042363658"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>9042363658</a></p>
+    </section>
+  </main>
+
+  <section id="yt" hidden aria-labelledby="yt-h">
+    <a class="back" href="#work">Back to portfolio</a>
+    <h2 id="yt-h">YouTube videos</h2>
+    <h3 class="topic">Rela Hospital</h3>
+    <ul id="yt3-list" class="vgrid wide"></ul>
+    <h3 class="topic">Ansi Siddha</h3>
+    <ul id="yt2-list" class="vgrid wide"></ul>
+    <h3 class="topic">VOV Bhakthi</h3>
+    <ul id="yt-list" class="vgrid wide"></ul>
+  </section>
+
+  <section id="reels" hidden aria-labelledby="reels-h">
+    <a class="back" href="#work">Back to portfolio</a>
+    <h2 id="reels-h">Reels series</h2>
+    <div class="tabs" role="tablist" aria-label="Reels categories">
+      <button type="button" role="tab" aria-selected="true" aria-controls="reels-list" data-k="reels">Reels</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="reels-list" data-k="bts">BTS</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="reels-list" data-k="doctors">Doctors Reel</button>
+    </div>
+    <ul id="reels-list" role="tabpanel"></ul>
+  </section>
+
+  <section id="brandfilm" hidden aria-labelledby="bf-h">
+    <a class="back" href="#work">Back to portfolio</a>
+    <h2 id="bf-h">Brand film</h2>
+    <ul id="bf-list" class="vgrid wide"></ul>
+    <h3 class="topic">Naturals</h3>
+    <ul id="nat-list" class="vgrid"></ul>
+    <div class="cnav"><button type="button" id="nat-prev" aria-label="Previous videos">Previous</button><button type="button" id="nat-next" aria-label="Next videos">Next</button></div>
+  </section>
+
+  <section id="eventrecap" hidden aria-labelledby="er-h">
+    <a class="back" href="#work">Back to portfolio</a>
+    <h2 id="er-h">Event recap</h2>
+    <ul id="er-list" class="vgrid wide"></ul>
+  </section>
+
+  <section id="documentary" hidden aria-labelledby="dc-h">
+    <a class="back" href="#work">Back to portfolio</a>
+    <h2 id="dc-h">Documentary</h2>
+    <ul id="dc-list" class="vgrid wide"></ul>
+  </section>
+
+  <section id="shortfilms" hidden aria-labelledby="sf-h">
+    <a class="back" href="#work">Back to portfolio</a>
+    <h2 id="sf-h">Short films</h2>
+    <ul id="sf-list" class="vgrid wide"></ul>
+  </section>
+
+  <footer>© 2026 MohanRaj</footer>
+  <dialog id="vmodal" aria-label="Video player"><button type="button" class="close" id="vclose">Close</button><video id="mv" controls playsinline></video></dialog>
+</div>
+
+<script>
+var tracks=["Commercial","Narrative","Social"];
+var clips=[
+ {t:"Brand film",page:"brandfilm",c:0,s:3,w:24,kind:"Brand film",role:"Edit, colour",len:"2:10",yr:"2026",tools:"Premiere Pro, DaVinci Resolve"},
+ {t:"Short films",page:"shortfilms",c:0,s:34,w:16,kind:"Explainer",role:"Edit, motion graphics",len:"1:20",yr:"2025",tools:"After Effects, Premiere Pro"},
+ {t:"Festival short",c:1,s:10,w:38,kind:"Short film",role:"Edit, sound mix",len:"14:30",yr:"2025",tools:"DaVinci Resolve"},
+ {t:"Documentary trailer",page:"documentary",c:1,s:56,w:20,kind:"Trailer",role:"Edit",len:"1:45",yr:"2024",tools:"Final Cut Pro"},
+ {t:"Reels series",page:"reels",c:2,s:6,w:20,kind:"Social series",role:"Edit, captions",len:"0:30 each",yr:"2026",tools:"CapCut, After Effects"},
+ {t:"Event recap",page:"eventrecap",c:2,s:42,w:22,kind:"Recap",role:"Edit, colour",len:"1:00",yr:"2025",tools:"Premiere Pro"},
+ {t:"YouTube videos",page:"youtube",c:2,s:68,w:24,kind:"YouTube video",role:"Edit, motion graphics",len:"8:00",yr:"2026",tools:"Premiere Pro, After Effects"}
+];
+var tl=document.getElementById("tl"),head=document.getElementById("head"),btns=[];
+function pad(n){return String(n).padStart(2,"0")}
+function tcOf(p){var s=Math.round(p*36);return pad(Math.floor(s/3600))+":"+pad(Math.floor(s%3600/60))+":"+pad(s%60)+":00"}
+tracks.forEach(function(name,i){
+  var row=document.createElement("div");row.className="row";
+  var lab=document.createElement("span");
+  if(name==="YouTube"){var la=document.createElement("a");la.href="#youtube";la.textContent="YouTube";lab.appendChild(la)}else{lab.textContent=name}
+  var lane=document.createElement("div");lane.className="lane";
+  clips.forEach(function(c,j){
+    if(c.c!==i)return;
+    var b=document.createElement("button");
+    b.type="button";b.className="clip";b.textContent=c.t;
+    b.style.left=c.s+"%";b.style.width=c.w+"%";b.setAttribute("aria-pressed","false");
+    b.addEventListener("click",function(){if(clips[j].page){location.hash=clips[j].page}else{select(j)}});
+    btns[j]=b;lane.appendChild(b);
+  });
+  row.appendChild(lab);row.appendChild(lane);tl.appendChild(row);
+});
+function select(j){
+  btns.forEach(function(b,k){if(b)b.setAttribute("aria-pressed",k===j?"true":"false")});
+  head.style.setProperty("--p",clips[j].s);
+}
+select(0);
+(function(){
+  var box=document.getElementById("do");if(!box)return;
+  var cards=box.querySelectorAll(".card"),i=0,t=null,reduce=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  function hot(k){cards.forEach(function(c,j){c.classList.toggle("hot",j===k)})}
+  function start(){if(t||reduce)return;hot(i);t=setInterval(function(){i=(i+1)%cards.length;hot(i)},1800)}
+  function stop(){clearInterval(t);t=null;hot(-1)}
+  if("IntersectionObserver" in window){new IntersectionObserver(function(es){if(es[0].isIntersecting)start();else stop()},{threshold:.2}).observe(box)}else start();
+})();
+var ytl=document.getElementById("yt-list");
+clips.forEach(function(c){
+  if(c.c!==3)return;
+  var li=document.createElement("li"),h=document.createElement("h3"),p=document.createElement("p");
+  h.textContent=c.t;p.textContent=c.kind+", "+c.role+", "+c.len+", "+c.yr;
+  li.appendChild(h);li.appendChild(p);
+  if(c.link){var a=document.createElement("a");a.href=c.link;a.target="_blank";a.rel="noopener";a.textContent="Watch video";li.appendChild(a)}
+  ytl.appendChild(li);
+});
+var reels={reels:[{t:"Reel 1",d:"Reel",video:"/_blob/3b70e1d3657c36f97267cbe7cd193739"},{t:"Reel 2",d:"Reel",video:"/_blob/e6b9c6faaeb2cd90e2f945c951c91469"},{t:"Reel 3",d:"Reel",video:"/_blob/a5ebff0abdeca921792b06cc811ef52f"},{t:"Reel 4",d:"Reel",wide:true,video:"/_blob/90cc78bc6c2bd5afc92fdd922a222f09"}],pk:[{t:"PK Builders reel 1",d:"PK Builders",video:"/_blob/16a4f6895aee18a023849d5487e7a794"},{t:"PK Builders reel 3",d:"PK Builders",video:"/_blob/79aa89f9d1fe017431ff68e22ed69013"},{t:"PK Builders reel 5",d:"PK Builders",video:"/_blob/37b4c74575ea36903440f3356780fa74"}],bts:[{t:"Making BTS",d:"Behind the scenes",video:"/_blob/5a6bdd20df9f4164bc291eabedfb9c0a"},{t:"Rj Nivedha BTS",d:"Behind the scenes",video:"/_blob/ef8f7d9a4bfe1493533b158641d12070"}],doctors:[{t:"Rela Hospital",folder:true,items:[{t:"Rela Hospital",video:"/_blob/419b540a2c07e2759b5083d99996971a"},{t:"Rela Hospital video 2",video:"/_blob/e094691f0eedb9909b30431dfd2e0903"},{t:"Rela Hospital video 3",video:"/_blob/bcd78c25d48ef147056063afa205fde9"}]},{t:"The Gift",folder:true,items:[{t:"The Gift video 1",video:"/_blob/a5900199f562b6788ccda66efdb5638f"},{t:"The Gift video 2",video:"/_blob/afefdc56c853a9b453b16e84554bde7d"},{t:"The Gift video 3",video:"/_blob/a3e2766dd74b0e9d4e30c96a1259b398"}]},{t:"Dr.Dhamotharan - Apollo",folder:true,items:[{t:"Dr.Dhamotharan - Apollo video 1",video:"/_blob/da2642844580da926b867079c804d677"},{t:"Dr.Dhamotharan - Apollo video 2",video:"/_blob/e1f56821d14533c5d620fe4747a12ef2"},{t:"Dr.Dhamotharan - Apollo video 3",video:"/_blob/7df4f74b5f79ddd603f7c18667c47d68"}]},{t:"Dr.Chockalingam",folder:true,items:[{t:"Dr.Chockalingam video 1",video:"/_blob/aac7a267f42713a4c1d9f54eee5958b0"},{t:"Dr.Chockalingam video 2",video:"/_blob/0c696fad4290effa57f47bece715a5c3"},{t:"Dr.Chockalingam video 3",video:"/_blob/c711157ee88659e393a2b39d6eef1b64"}]},{t:"Ansi Sidhdha",folder:true,items:[{t:"Ansi Sidhdha video 1",video:"/_blob/3d758dacfc5d9479bcad359e4157c554"},{t:"Ansi Sidhdha video 2",video:"/_blob/50531107657456d221151b82e78ac1d5"},{t:"Ansi Sidhdha video 3",video:"/_blob/d32afd7767297be159dead193e852abd"}]}]};
+reels.reels.push({t:"PK Builders",folder:true,items:reels.pk});
+reels.reels.push({t:"Parr Ever Supermarket",folder:true,items:[{t:"Parr Ever Supermarket reel 1",video:"/_blob/8d12d6634f7d5795f8b2f52ac74333ca"},{t:"Parr Ever Supermarket reel 2",video:"/_blob/c1e754f03f2ea1d17bfd359a81795a43"}]});
+var rl=document.getElementById("reels-list"),tabs=document.querySelectorAll(".tabs button");
+function showTab(k,folder){
+  tabs.forEach(function(t){t.setAttribute("aria-selected",t.dataset.k===k?"true":"false")});
+  rl.textContent="";
+  var list=folder?folder.items:reels[k];
+  rl.className=list[0].video?"vgrid":"";
+  if(folder){var bk=document.createElement("li"),bb=document.createElement("button");bk.style.gridColumn="1/-1";bb.type="button";bb.className="fback";bb.textContent="Back to Informative reels";bb.addEventListener("click",function(){showTab(k)});bk.appendChild(bb);rl.appendChild(bk)}
+  list.forEach(function(r){
+    var li=document.createElement("li"),h=document.createElement("h3"),p=document.createElement("p");
+    h.textContent=r.t;
+    if(r.folder){
+      if(list[0].video){li.style.gridColumn="1 / -1";li.style.marginTop="1.5rem"}
+      var th=document.createElement("h3"),cr=document.createElement("ul"),nv=document.createElement("div");
+      th.className="topic";th.textContent=r.t;cr.className="crow";nv.className="cnav";
+      r.items.forEach(function(it){
+        var ci=document.createElement("li"),cb=document.createElement("button"),cv=document.createElement("video");
+        cb.type="button";cb.className="vcard";cb.setAttribute("aria-label","Watch "+it.t);
+        cv.src=it.video;cv.muted=true;cv.loop=true;cv.autoplay=true;cv.playsInline=true;cv.setAttribute("muted","");cv.preload="auto";
+        cb.appendChild(cv);cb.addEventListener("click",function(){openVid(it)});
+        ci.appendChild(cb);cr.appendChild(ci);
+      });
+      ["prev","next"].forEach(function(d){
+        var nb=document.createElement("button");nb.type="button";nb.textContent=d==="next"?"Next":"Previous";nb.setAttribute("aria-label",d==="next"?"Next videos":"Previous videos");
+        nb.addEventListener("click",function(){cr.scrollBy({left:(d==="next"?1:-1)*cr.clientWidth*0.8,behavior:"smooth"})});
+        nv.appendChild(nb);
+      });
+      li.appendChild(th);li.appendChild(cr);li.appendChild(nv);rl.appendChild(li);
+      cr.querySelectorAll("video").forEach(function(x){var p=x.play();if(p&&p.catch)p.catch(function(){})});
+      return;
+    }
+    if(r.video){
+      var b=document.createElement("button"),t=document.createElement("span"),v=document.createElement("video");
+      b.type="button";b.className=r.wide?"vcard wide":"vcard";if(r.wide)li.style.gridColumn="span 2";b.setAttribute("aria-label","Watch "+r.t);
+      t.className="vt";t.textContent=r.t;
+      v.src=r.video;v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute("muted","");v.preload="auto";
+      b.appendChild(v);b.addEventListener("click",function(){openVid(r)});
+      li.appendChild(b);rl.appendChild(li);
+      var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});
+      return;
+    }
+    p.textContent=r.link?r.d:r.d+", video coming soon";
+    li.appendChild(h);li.appendChild(p);
+    if(r.link){var a=document.createElement("a");a.href=r.link;a.target="_blank";a.rel="noopener";a.textContent="Watch video";li.appendChild(a)}
+    rl.appendChild(li);
+  });
+}
+tabs.forEach(function(t){t.addEventListener("click",function(){showTab(t.dataset.k)})});
+showTab("reels");
+var nat=["55e23b502ea202caa2c1075b1f3f082e","749c9e2af795dcdb30772b79245bd47a","953f08af5cbf1d57521bf775a37bfe75","b91b239988cd7def827dcd446d52b728","ae3a1f1826c3180bba4ce2aad4ce0a54"],natBuilt=false;
+var ytv=["340096bef657c3fe49c6cf13393eca2e"],ytn=false;
+function buildYt(){
+  if(ytn)return;ytn=true;
+  var yl=document.getElementById("yt-list");
+  ytv.forEach(function(id,i){
+    var r={t:"YouTube video "+(i+1),video:"/_blob/"+id};
+    var li=document.createElement("li"),b=document.createElement("button"),v=document.createElement("video");
+    b.type="button";b.className="vcard wide";b.setAttribute("aria-label","Watch "+r.t);
+    v.src=r.video;v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute("muted","");v.preload="metadata";
+    b.appendChild(v);b.addEventListener("click",function(){openVid(r)});
+    li.appendChild(b);yl.appendChild(li);
+    var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});
+  });
+}
+var dcv=["7c86826abcb65bfbaad016769ffdc56d","1e3d963309264764de2e75dc702e0a4f","95b884020724d874734794e28e0b44e1"],dcn=false;
+function buildDoc(){
+  if(dcn)return;dcn=true;
+  var dl=document.getElementById("dc-list");
+  dcv.forEach(function(id,i){
+    var r={t:"Documentary video "+(i+1),video:"/_blob/"+id};
+    var li=document.createElement("li"),b=document.createElement("button"),v=document.createElement("video");
+    b.type="button";b.className="vcard wide";b.setAttribute("aria-label","Watch "+r.t);
+    v.src=r.video;v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute("muted","");v.preload="metadata";
+    b.appendChild(v);b.addEventListener("click",function(){openVid(r)});
+    li.appendChild(b);dl.appendChild(li);
+    var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});
+  });
+}
+var sfv=[["Mistake","0e2cb82f0155c4c6f57f101fae0d9d2a"],["Silent Continuity","c04d0728877393d5bb6e9e6459d39cf9"],["Vidhi","45665dd04cf4e53c028be111876a0cfd"],["LEAK Awareness Video","02136e863eff0fa7588b0c9e2c69c27f"],["Mashup - Hero’s Entry","eef4ed689fb121d2b9f143954fe11b12"]],sfn=false;
+function buildSf(){
+  if(sfn)return;sfn=true;
+  var sl=document.getElementById("sf-list");
+  sfv.forEach(function(x){
+    var r={t:x[0],video:"/_blob/"+x[1]};
+    var li=document.createElement("li"),b=document.createElement("button"),v=document.createElement("video"),cp=document.createElement("p");
+    b.type="button";b.className="vcard wide";b.setAttribute("aria-label","Watch "+r.t);
+    v.src=r.video;v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute("muted","");v.preload="metadata";
+    b.appendChild(v);b.addEventListener("click",function(){openVid(r)});
+    cp.className="cap";cp.textContent=r.t;
+    li.appendChild(b);li.appendChild(cp);sl.appendChild(li);
+    var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});
+  });
+}
+var ytv3=["60bc565ac52a8031c9c9cc73d936c7ee","b252b3e06da1e36221daf105dd5577c0","003c81f2667605dc45881ce66bbe4cbd"],ytn3=false;
+function buildYt3(){
+  if(ytn3)return;ytn3=true;
+  var yl=document.getElementById("yt3-list");
+  ytv3.forEach(function(id,i){
+    var r={t:"Rela Hospital video "+(i+1),video:"/_blob/"+id};
+    var li=document.createElement("li"),b=document.createElement("button"),v=document.createElement("video");
+    b.type="button";b.className="vcard wide";b.setAttribute("aria-label","Watch "+r.t);
+    v.src=r.video;v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute("muted","");v.preload="metadata";
+    b.appendChild(v);b.addEventListener("click",function(){openVid(r)});
+    li.appendChild(b);yl.appendChild(li);
+    var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});
+  });
+}
+var ytv2=["6d5221cf40593dba458659ad54010449","0ef6615e0411c5f734194be400bcc229","e137d9898beea7c645c99ab93111e27c"],ytn2=false;
+function buildYt2(){
+  if(ytn2)return;ytn2=true;
+  var yl=document.getElementById("yt2-list");
+  ytv2.forEach(function(id,i){
+    var r={t:"Ansi Siddha video "+(i+1),video:"/_blob/"+id};
+    var li=document.createElement("li"),b=document.createElement("button"),v=document.createElement("video");
+    b.type="button";b.className="vcard wide";b.setAttribute("aria-label","Watch "+r.t);
+    v.src=r.video;v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute("muted","");v.preload="metadata";
+    b.appendChild(v);b.addEventListener("click",function(){openVid(r)});
+    li.appendChild(b);yl.appendChild(li);
+    var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});
+  });
+}
+var erBuilt=false;
+function buildEr(){
+  if(erBuilt)return;erBuilt=true;
+  var r={t:"Event recap video",video:"/_blob/8f2675f613b13e96f96f04f1bf47b61d"};
+  var li=document.createElement("li"),b=document.createElement("button"),v=document.createElement("video");
+  b.type="button";b.className="vcard wide";b.setAttribute("aria-label","Watch "+r.t);
+  v.src=r.video;v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute("muted","");v.preload="metadata";
+  b.appendChild(v);b.addEventListener("click",function(){openVid(r)});
+  li.appendChild(b);document.getElementById("er-list").appendChild(li);
+  var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});
+}
+var bfv=["150b6f37bef705b6a5a1af1360a16c30","114e5a85ff5f718b15db15304f5be7ad"],bft=["LED Promotion Ad","MGM Banner Ad"];
+function buildNat(){
+  if(natBuilt)return;natBuilt=true;
+  var bfl=document.getElementById("bf-list");
+  bfv.forEach(function(id,i){
+    var r={t:bft[i],video:"/_blob/"+id};
+    var li=document.createElement("li"),b=document.createElement("button"),v=document.createElement("video");
+    b.type="button";b.className="vcard wide";b.setAttribute("aria-label","Watch "+r.t);
+    v.src=r.video;v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute("muted","");v.preload="metadata";
+    b.appendChild(v);b.addEventListener("click",function(){openVid(r)});
+    li.appendChild(b);var cp=document.createElement("p");cp.className="cap";cp.textContent=r.t;li.appendChild(cp);bfl.appendChild(li);
+    var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});
+  });
+  var natl=document.getElementById("nat-list");
+  nat.forEach(function(id,i){
+    var r={t:"Naturals video "+(i+1),video:"/_blob/"+id};
+    var li=document.createElement("li"),b=document.createElement("button"),v=document.createElement("video");
+    b.type="button";b.className="vcard";b.setAttribute("aria-label","Watch "+r.t);
+    v.src=r.video;v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute("muted","");v.preload="metadata";
+    b.appendChild(v);b.addEventListener("click",function(){openVid(r)});
+    li.appendChild(b);natl.appendChild(li);
+    var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});
+  });
+}
+["prev","next"].forEach(function(d){document.getElementById("nat-"+d).addEventListener("click",function(){var l=document.getElementById("nat-list");l.scrollBy({left:(d==="next"?1:-1)*l.clientWidth*0.8,behavior:"smooth"})})});
+var dlg=document.getElementById("vmodal"),mv=document.getElementById("mv");
+function openVid(r){
+  mv.muted=false;mv.src=r.video;mv.currentTime=0;
+  dlg.showModal();
+  var pr=mv.play();if(pr&&pr.catch)pr.catch(function(){});
+}
+function closeVid(){if(dlg.open)dlg.close()}
+dlg.addEventListener("close",function(){mv.pause();mv.removeAttribute("src");mv.load()});
+document.getElementById("vclose").addEventListener("click",closeVid);
+dlg.addEventListener("click",function(e){if(e.target===dlg)closeVid()});
+function route(){
+  var h=location.hash,r=h==="#reels",bf=h==="#brandfilm",er=h==="#eventrecap",dc=h==="#documentary",sf=h==="#shortfilms",on=h==="#youtube"||r||bf||er||dc||sf;
+  document.getElementById("main").hidden=on;
+  document.getElementById("yt").hidden=h!=="#youtube";
+  if(h==="#youtube"){buildYt3();buildYt2();buildYt()}
+  document.getElementById("reels").hidden=!r;
+  document.getElementById("brandfilm").hidden=!bf;
+  if(bf)buildNat();
+  document.getElementById("eventrecap").hidden=!er;
+  if(er)buildEr();
+  document.getElementById("documentary").hidden=!dc;
+  if(dc)buildDoc();
+  document.getElementById("shortfilms").hidden=!sf;
+  if(sf)buildSf();
+  if(on)window.scrollTo(0,0);
+  else if(location.hash==="#work")document.getElementById("work").scrollIntoView();
+}
+window.addEventListener("hashchange",route);route();
+head.style.setProperty("--p",0);
+requestAnimationFrame(function(){requestAnimationFrame(function(){head.style.setProperty("--p",clips[0].s)})});
+</script>
+</body>
+</html>
